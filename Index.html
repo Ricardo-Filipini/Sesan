@@ -1,442 +1,442 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modernização DEPAD - SESAN/MDS</title>
+    <title>DEPAD | Ecossistema de Dados</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (Lightweight SVG icons) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        /* Estilos específicos para garantir comportamento dos gráficos */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 100%; /* Garante uso total da largura da coluna pai */
-            height: 300px;
-            margin: 0 auto;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 380px; /* Mais altura em desktop */
-            }
+        .active-tab {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            border-bottom: 2px solid #1e40af;
         }
-
-        /* Linhas do fluxograma */
-        .flow-line {
-            border-left: 2px dashed #cbd5e1;
-            height: 24px;
-            width: 1px;
-            margin: 0 auto;
-        }
-
-        /* Destaque suave na navegação */
-        .nav-link.active {
-            color: #0f766e; /* Teal-700 */
-            border-bottom: 2px solid #0f766e;
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
     </style>
-    <!-- Palette: Clean Professional. Background: White/Slate-50. Accents: Teal (MDS identity hint) and Slate. -->
-    <!-- Structure: Single Page Scrolling (Landing Page style). 
-         Why: Users prefer scrolling to explore narratives. It fixes the "hidden content" issue typical of fixed-height dashboards.
-         Navigation: Sticky Header with Anchor links. -->
-    <!-- NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- Sticky Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo / Brand -->
-                <div class="flex-shrink-0 flex items-center gap-2">
-                    <div class="w-8 h-8 bg-teal-700 rounded-lg flex items-center justify-center text-white font-bold text-lg">D</div>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-slate-800 leading-tight">DEPAD</span>
-                        <span class="text-[10px] uppercase tracking-wider text-slate-500">MDS / SESAN</span>
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 shadow-sm z-10 flex-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i data-lucide="database" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">DEPAD <span class="font-light text-slate-500">| Dados & Sistemas</span></h1>
+                    <p class="text-xs text-slate-500">MDS - Secretaria Nacional de Segurança Alimentar e Nutricional</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-4 text-sm text-slate-500">
+                <span class="flex items-center gap-1"><i data-lucide="shield-check" class="w-4 h-4 text-green-500"></i> Governança Ativa</span>
+                <span class="flex items-center gap-1"><i data-lucide="server" class="w-4 h-4 text-blue-500"></i> Teradata Powered</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="flex flex-1 overflow-hidden max-w-7xl mx-auto w-full">
+        
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col p-4 gap-2 overflow-y-auto">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">Navegação</div>
+            
+            <button onclick="switchTab('lifecycle')" id="nav-lifecycle" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition-all active-tab">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                Ciclo de Vida do Dado
+            </button>
+
+            <button onclick="switchTab('architecture')" id="nav-architecture" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition-all">
+                <i data-lucide="cpu" class="w-5 h-5"></i>
+                Arquitetura Tech
+            </button>
+
+            <button onclick="switchTab('indicators')" id="nav-indicators" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition-all">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                Indicadores PAA
+            </button>
+            
+            <button onclick="switchTab('governance')" id="nav-governance" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-slate-600 hover:bg-slate-50 transition-all">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                Governança & Gestão
+            </button>
+
+            <div class="mt-auto bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h4 class="text-blue-800 font-semibold text-sm mb-1">Destaque</h4>
+                <p class="text-xs text-blue-600">A migração para Teradata permite processamento paralelo massivo para cruzar PAA com CadÚnico.</p>
+            </div>
+        </aside>
+
+        <!-- Main Viewing Area -->
+        <main class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 relative" id="main-content">
+            
+            <!-- VIEW: LIFECYCLE -->
+            <div id="view-lifecycle" class="view-section fade-in">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-3xl">🔄</span> Ciclo de Vida da Informação
+                    </h2>
+                    <p class="text-slate-600 mt-2">Da adesão jurídica ao pagamento bancário: como o dado trafega no PAA.</p>
+                </div>
+
+                <!-- Process Steps -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+                    <!-- Connecting Line (Desktop) -->
+                    <div class="hidden md:block absolute top-8 left-0 w-full h-1 bg-slate-200 -z-0"></div>
+
+                    <!-- Step 1 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative z-10 card-hover cursor-pointer group" onclick="toggleDetail('step1')">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-blue-600 transition-colors">
+                            <span class="text-2xl">📝</span>
+                        </div>
+                        <h3 class="font-bold text-center text-slate-800">1. Adesão</h3>
+                        <p class="text-xs text-center text-slate-500 mt-1">Instrumento Jurídico</p>
+                        <div class="mt-4 text-sm text-slate-600 hidden" id="detail-step1">
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li><strong>Input:</strong> Termo de Adesão.</li>
+                                <li><strong>Validadores:</strong> Edital, Código IBGE, Conta Bancária.</li>
+                                <li><strong>Regra:</strong> Vínculo com COMSEA (Controle Social).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative z-10 card-hover cursor-pointer group" onclick="toggleDetail('step2')">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-amber-500 transition-colors">
+                            <span class="text-2xl">🌾</span>
+                        </div>
+                        <h3 class="font-bold text-center text-slate-800">2. Proposta</h3>
+                        <p class="text-xs text-center text-slate-500 mt-1">Planejamento Produtivo</p>
+                        <div class="mt-4 text-sm text-slate-600 hidden" id="detail-step2">
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li><strong>Core:</strong> CPF/DAP do Agricultor.</li>
+                                <li><strong>Taxonomia:</strong> Lista padronizada de produtos.</li>
+                                <li><strong>Validação:</strong> Interoperabilidade com MDA (CAF/DAP).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative z-10 card-hover cursor-pointer group" onclick="toggleDetail('step3')">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-purple-600 transition-colors">
+                            <span class="text-2xl">🚚</span>
+                        </div>
+                        <h3 class="font-bold text-center text-slate-800">3. Recebimento</h3>
+                        <p class="text-xs text-center text-slate-500 mt-1">O Evento Físico</p>
+                        <div class="mt-4 text-sm text-slate-600 hidden" id="detail-step3">
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li><strong>Ação:</strong> Entrega do alimento na entidade.</li>
+                                <li><strong>Risco:</strong> Erro de transcrição manual (analógico -> digital).</li>
+                                <li><strong>Documento:</strong> Termo de Recebimento.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative z-10 card-hover cursor-pointer group" onclick="toggleDetail('step4')">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-green-600 transition-colors">
+                            <span class="text-2xl">💳</span>
+                        </div>
+                        <h3 class="font-bold text-center text-slate-800">4. Pagamento</h3>
+                        <p class="text-xs text-center text-slate-500 mt-1">Confirmação Financeira</p>
+                        <div class="mt-4 text-sm text-slate-600 hidden" id="detail-step4">
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li><strong>Finalização:</strong> Ordem Bancária (BB/Caixa).</li>
+                                <li><strong>Status:</strong> "Single Source of Truth".</li>
+                                <li><strong>Output:</strong> Execução Orçamentária Realizada.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8">
-                    <a href="#inicio" class="nav-link text-slate-600 hover:text-teal-700 px-1 py-2 text-sm font-medium transition-colors">Visão Geral</a>
-                    <a href="#ecossistema" class="nav-link text-slate-600 hover:text-teal-700 px-1 py-2 text-sm font-medium transition-colors">PAA & Conab</a>
-                    <a href="#infraestrutura" class="nav-link text-slate-600 hover:text-teal-700 px-1 py-2 text-sm font-medium transition-colors">Teradata</a>
-                    <a href="#transparencia" class="nav-link text-slate-600 hover:text-teal-700 px-1 py-2 text-sm font-medium transition-colors">VisData & APIs</a>
+                <div class="mt-8 bg-slate-100 p-4 rounded-lg border-l-4 border-blue-500 flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-500 flex-shrink-0 mt-1"></i>
+                    <p class="text-sm text-slate-700"><strong>Nota de UX:</strong> Clique nos cartões acima para ver os detalhes técnicos de cada etapa do pipeline de dados.</p>
+                </div>
+            </div>
+
+            <!-- VIEW: ARCHITECTURE -->
+            <div id="view-architecture" class="view-section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-3xl">🏗️</span> Arquitetura Tecnológica
+                    </h2>
+                    <p class="text-slate-600 mt-2">Modern Data Stack no Setor Público: Migração, Integração e Visualização.</p>
                 </div>
 
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
-                    <span class="text-xl">&#9776;</span>
-                </button>
-            </div>
-        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- System Card: SISPAA -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg text-blue-700">SISPAA (MDS)</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">OLTP / Transacional</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li class="flex items-start gap-2"><i data-lucide="code" class="w-4 h-4 mt-1"></i> Backend em Java (JBoss) e Banco Oracle/PostgreSQL.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="lock" class="w-4 h-4 mt-1"></i> Autenticação via Rede SUAS e SAA.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 mt-1"></i> <strong>Desafio:</strong> Integração com PAA Net (Conab).</li>
+                        </ul>
+                    </div>
 
-        <!-- Mobile Menu Panel (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#inicio" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-teal-700">Visão Geral</a>
-                <a href="#ecossistema" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-teal-700">PAA & Conab</a>
-                <a href="#infraestrutura" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-teal-700">Infraestrutura</a>
-                <a href="#transparencia" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-teal-700">Transparência</a>
+                    <!-- System Card: Teradata -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-orange-500">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg text-orange-700">Teradata EDW</h3>
+                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">OLAP / Analítico</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li class="flex items-start gap-2"><i data-lucide="cpu" class="w-4 h-4 mt-1"></i> Processamento Paralelo Massivo (MPP) para Big Data.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="layers" class="w-4 h-4 mt-1"></i> Cruza PAA x CadÚnico x CNIS.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="database" class="w-4 h-4 mt-1"></i> "Data Warehouse as a Service" via Dataprev/Serpro.</li>
+                        </ul>
+                    </div>
+
+                    <!-- System Card: VisData -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg text-purple-700">VisData</h3>
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Frontend / BI</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li class="flex items-start gap-2"><i data-lucide="eye" class="w-4 h-4 mt-1"></i> Ferramenta de Transparência Ativa e Visualização.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="grid" class="w-4 h-4 mt-1"></i> Permite "Slicing & Dicing" por Território e Grupo.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="file-text" class="w-4 h-4 mt-1"></i> Suportado pelo "Documenta Wiki" (Dicionário de Dados).</li>
+                        </ul>
+                    </div>
+
+                    <!-- System Card: Modernização -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg text-green-700">Futuro & APIs</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Interoperabilidade</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li class="flex items-start gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 mt-1"></i> Migração de PHP legado para Python (Django/Flask).</li>
+                            <li class="flex items-start gap-2"><i data-lucide="cloud" class="w-4 h-4 mt-1"></i> Adoção de arquitetura de Microsserviços.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="share-2" class="w-4 h-4 mt-1"></i> Documentação de APIs via Swagger para integrar Conab.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- VIEW: INDICATORS -->
+            <div id="view-indicators" class="view-section hidden fade-in">
+                 <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-3xl">📊</span> Matriz de Indicadores
+                    </h2>
+                    <p class="text-slate-600 mt-2">Monitoramento baseado em evidências e alinhamento aos ODS.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Indicator 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-indigo-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-400 uppercase">Participação Social</h4>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1">IN001 / IN002</h3>
+                            </div>
+                            <span class="text-2xl">👥</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mt-3">Número de Agricultores Familiares Fornecedores.</p>
+                        <div class="mt-4 bg-indigo-50 p-2 rounded text-xs text-indigo-700">
+                            <strong>Fonte:</strong> SISPAA (Adesão)
+                        </div>
+                    </div>
+
+                    <!-- Indicator 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-pink-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-400 uppercase">Gênero (ODS 5)</h4>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1">IN005 / IN006</h3>
+                            </div>
+                            <span class="text-2xl">👩‍🌾</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mt-3">Participação de Mulheres na produção.</p>
+                        <div class="mt-4 bg-pink-50 p-2 rounded text-xs text-pink-700">
+                            <strong>Fonte:</strong> Cadastro PF (Validação DAP Mulher)
+                        </div>
+                    </div>
+
+                    <!-- Indicator 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-emerald-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-400 uppercase">Financeiro</h4>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1">IN003</h3>
+                            </div>
+                            <span class="text-2xl">💰</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mt-3">Valor Pago (Injeção na economia local).</p>
+                        <div class="mt-4 bg-emerald-50 p-2 rounded text-xs text-emerald-700">
+                            <strong>Fonte:</strong> SIAFI / SISPAA Financeiro
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deep Dive Table -->
+                <div class="mt-8 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                        <h3 class="font-bold text-slate-700">Cruzamento de Dados (Insights)</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-blue-100 p-2 rounded-lg"><i data-lucide="target" class="text-blue-600"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Focalização (IN023)</h4>
+                                    <p class="text-sm text-slate-600">Proporção de fornecedores no CadÚnico. Revela se o programa atinge os mais pobres. Depende 100% do Teradata.</p>
+                                </div>
+                            </div>
+                            <div class="w-full h-px bg-slate-100"></div>
+                            <div class="flex items-start gap-4">
+                                <div class="bg-amber-100 p-2 rounded-lg"><i data-lucide="shopping-cart" class="text-amber-600"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Cesta de Produtos (IN022)</h4>
+                                    <p class="text-sm text-slate-600">Análise de diversidade alimentar (Toneladas/Tipo). Difícil normalização devido a regionalismos ("macaxeira" vs "mandioca").</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: GOVERNANCE -->
+            <div id="view-governance" class="view-section hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-3xl">🏛️</span> Governança e Liderança
+                    </h2>
+                    <p class="text-slate-600 mt-2">A estrutura humana e institucional por trás dos dados.</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                    <div class="flex flex-col md:flex-row">
+                        <div class="bg-blue-600 p-6 flex flex-col justify-center items-center md:w-1/3 text-white text-center">
+                            <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-4 text-4xl">
+                                👨‍💼
+                            </div>
+                            <h3 class="font-bold text-xl">Paulo Sérgio Cândido Alves</h3>
+                            <p class="text-blue-100 text-sm mt-1">Coordenador-Geral</p>
+                            <div class="mt-4 flex gap-2 justify-center">
+                                <span class="bg-blue-700 px-2 py-1 rounded text-xs">Zootecnista (UFV)</span>
+                                <span class="bg-blue-700 px-2 py-1 rounded text-xs">Gestão Técnica</span>
+                            </div>
+                        </div>
+                        <div class="p-6 md:w-2/3">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">Papel na Governança de Dados</h4>
+                            <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                                Atua como "âncora de conhecimento" e continuidade administrativa. Sua gestão, especialmente durante a pandemia (CGFAL), exigiu repactuação ágil de metas baseada em dados. Representa o MDS em conselhos estratégicos (ANSN, CONAPE), facilitando a normalização de dados intersetoriais.
+                            </p>
+                            <h4 class="font-bold text-sm text-slate-800 mb-2 mt-4">Estrutura DEPAD</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100 text-sm">
+                                    <strong>CGDIA:</strong> Motor operacional. Gera dados transacionais (pedidos, pagamentos).
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100 text-sm">
+                                    <strong>CGAE:</strong> Núcleo de inteligência. Consome dados para monitoramento e avaliação.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                    <h3 class="font-bold text-amber-800 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i> Desafio de Governança
+                    </h3>
+                    <p class="text-amber-800 text-sm mt-2">
+                        <strong>Dualidade MDS vs. Conab:</strong> A existência de sistemas distintos (SISPAA e PAA Net) exige Termos de Execução Descentralizada (TEDs) focados em interoperabilidade e padronização semântica para evitar "pontos cegos" na gestão da política.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Mobile Navigation (Bottom) -->
+    <nav class="md:hidden bg-white border-t border-slate-200 flex justify-around p-2 fixed bottom-0 w-full z-50">
+        <button onclick="switchTab('lifecycle')" class="flex flex-col items-center text-slate-500 p-2 active-mobile-tab">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Ciclo</span>
+        </button>
+        <button onclick="switchTab('architecture')" class="flex flex-col items-center text-slate-500 p-2">
+            <i data-lucide="cpu" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Tech</span>
+        </button>
+        <button onclick="switchTab('indicators')" class="flex flex-col items-center text-slate-500 p-2">
+            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Dados</span>
+        </button>
+        <button onclick="switchTab('governance')" class="flex flex-col items-center text-slate-500 p-2">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Gestão</span>
+        </button>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-20">
-
-        <!-- HERO / OVERVIEW SECTION -->
-        <section id="inicio" class="scroll-mt-24">
-            <div class="text-center max-w-3xl mx-auto mb-12">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                    Transformação Digital na <span class="text-teal-700">Segurança Alimentar</span>
-                </h1>
-                <p class="text-lg text-slate-600 leading-relaxed">
-                    O Departamento de Avaliação e Gestão da Informação (DEPAD) lidera a modernização da infraestrutura de dados da SESAN. O foco é garantir que os dados do PAA e de vulnerabilidade social sejam processados com rapidez, segurança e transparência.
-                </p>
-            </div>
-
-            <!-- Metrics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-teal-300 transition-colors group">
-                    <div class="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 text-2xl mb-4 group-hover:bg-teal-100 transition-colors">&#128202;</div>
-                    <h3 class="font-semibold text-slate-900 text-lg mb-2">Monitoramento do PAA</h3>
-                    <p class="text-slate-500 text-sm">Integração de dados complexos da agricultura familiar para melhor tomada de decisão.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-2xl mb-4 group-hover:bg-blue-100 transition-colors">&#9881;</div>
-                    <h3 class="font-semibold text-slate-900 text-lg mb-2">Migração Teradata</h3>
-                    <p class="text-slate-500 text-sm">Salto tecnológico saindo de sistemas legados para um Data Warehouse de alta performance.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-purple-300 transition-colors group">
-                    <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 text-2xl mb-4 group-hover:bg-purple-100 transition-colors">&#128275;</div>
-                    <h3 class="font-semibold text-slate-900 text-lg mb-2">Dados Abertos</h3>
-                    <p class="text-slate-500 text-sm">Transparência ativa através do VisData e APIs públicas para a sociedade.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ECOSYSTEM SECTION -->
-        <section id="ecossistema" class="scroll-mt-24 border-t border-slate-200 pt-12">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Content -->
-                <div>
-                    <span class="text-teal-600 font-bold tracking-wider text-xs uppercase mb-2 block">Fluxo da Informação</span>
-                    <h2 class="text-3xl font-bold text-slate-900 mb-6">O Desafio do PAA & Integração Conab</h2>
-                    <p class="text-slate-600 mb-4 leading-relaxed">
-                        O Programa de Aquisição de Alimentos (PAA) possui uma execução capilarizada, gerando dados dispersos. O desafio histórico sempre foi a latência e a qualidade da informação vinda da ponta.
-                    </p>
-                    <p class="text-slate-600 mb-6 leading-relaxed">
-                        A modernização ataca o problema da "Normalização". Antes de qualquer análise, os dados brutos da Conab e outros parceiros passam por um saneamento rigoroso (limpeza de CPFs, padronização de nomes de municípios e produtos) para garantir a integridade no banco de dados do MDS.
-                    </p>
-                    
-                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
-                        <p class="text-sm text-amber-900 font-medium">
-                            <span class="block text-amber-700 text-xs uppercase font-bold mb-1">Ponto Crítico</span>
-                            A interoperabilidade direta via APIs está substituindo gradualmente a troca manual de arquivos, reduzindo erros e tempo de processamento.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Interactive Flow Diagram -->
-                <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 relative">
-                    <h3 class="text-center font-bold text-slate-800 mb-8">Jornada do Dado</h3>
-                    
-                    <div class="space-y-1 relative z-10">
-                        <!-- Step 1 -->
-                        <div class="flex items-center gap-4 group cursor-pointer" onclick="updateFlowInfo('conab')">
-                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-xl shadow-sm group-hover:scale-110 transition-transform">1</div>
-                            <div class="flex-1 p-3 bg-slate-50 rounded-lg border border-slate-200 group-hover:border-green-300 transition-colors">
-                                <h4 class="font-bold text-slate-800 text-sm">Origem: Conab</h4>
-                                <p class="text-xs text-slate-500">Execução e emissão de dados primários</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flow-line ml-6"></div>
-
-                        <!-- Step 2 -->
-                        <div class="flex items-center gap-4 group cursor-pointer" onclick="updateFlowInfo('etl')">
-                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl shadow-sm group-hover:scale-110 transition-transform">2</div>
-                            <div class="flex-1 p-3 bg-slate-50 rounded-lg border border-slate-200 group-hover:border-blue-300 transition-colors">
-                                <h4 class="font-bold text-slate-800 text-sm">ETL & Normalização</h4>
-                                <p class="text-xs text-slate-500">Saneamento e padronização pelo DEPAD</p>
-                            </div>
-                        </div>
-
-                        <div class="flow-line ml-6"></div>
-
-                        <!-- Step 3 -->
-                        <div class="flex items-center gap-4 group cursor-pointer" onclick="updateFlowInfo('analise')">
-                            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl shadow-sm group-hover:scale-110 transition-transform">3</div>
-                            <div class="flex-1 p-3 bg-slate-50 rounded-lg border border-slate-200 group-hover:border-purple-300 transition-colors">
-                                <h4 class="font-bold text-slate-800 text-sm">Uso Estratégico</h4>
-                                <p class="text-xs text-slate-500">Painéis de Gestão e Dados Abertos</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Detail Box -->
-                    <div id="flow-info-box" class="mt-8 p-4 bg-slate-800 text-slate-100 rounded-lg text-sm transition-all duration-300 opacity-100">
-                        <p><strong>Clique nas etapas acima</strong> para entender os detalhes técnicos de cada fase do processo de dados.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- INFRASTRUCTURE SECTION -->
-        <section id="infraestrutura" class="scroll-mt-24 border-t border-slate-200 pt-12">
-            <div class="mb-10 text-center max-w-3xl mx-auto">
-                <span class="text-blue-600 font-bold tracking-wider text-xs uppercase mb-2 block">Tecnologia</span>
-                <h2 class="text-3xl font-bold text-slate-900 mb-4">Migração para Teradata</h2>
-                <p class="text-slate-600">
-                    A infraestrutura de banco de dados foi completamente reformulada. A migração para o ambiente Teradata permite cruzamentos complexos (ex: PAA vs CadÚnico) em segundos, algo inviável nos sistemas legados.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Performance Chart -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <span>&#9889;</span> Ganho de Performance
-                    </h3>
-                    <p class="text-xs text-slate-500 mb-4">Tempo de resposta em consultas complexas (minutos)</p>
-                    <div class="chart-container">
-                        <canvas id="performanceChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Migration Status Chart -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <span>&#128193;</span> Status da Carga de Dados
-                    </h3>
-                    <p class="text-xs text-slate-500 mb-4">Progresso da ingestão de dados históricos</p>
-                    <div class="chart-container">
-                        <canvas id="migrationChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TRANSPARENCY SECTION -->
-        <section id="transparencia" class="scroll-mt-24 border-t border-slate-200 pt-12 pb-24">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-                <!-- Text Content -->
-                <div class="lg:col-span-5 flex flex-col justify-center">
-                    <span class="text-purple-600 font-bold tracking-wider text-xs uppercase mb-2 block">Sociedade</span>
-                    <h2 class="text-3xl font-bold text-slate-900 mb-6">VisData & APIs Públicas</h2>
-                    <p class="text-slate-600 mb-6">
-                        A transparência não é apenas publicar PDFs. O DEPAD investe em **Dados Abertos** estruturados.
-                    </p>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 min-w-[20px] text-teal-600 font-bold">&#10003;</div>
-                            <p class="text-sm text-slate-600"><strong class="text-slate-800">VisData:</strong> Painéis interativos para gestores e cidadãos visualizarem onde o recurso público está sendo aplicado.</p>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 min-w-[20px] text-teal-600 font-bold">&#10003;</div>
-                            <p class="text-sm text-slate-600"><strong class="text-slate-800">APIs:</strong> Interfaces de programação que permitem a desenvolvedores e pesquisadores baixarem bases completas automaticamente.</p>
-                        </li>
-                    </ul>
-                    
-                    <button class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-6 rounded-lg transition-transform transform hover:-translate-y-0.5 shadow-lg flex items-center justify-center gap-2">
-                        <span>Acessar Portal de Dados</span>
-                        <span class="text-xs opacity-70">(Link Externo)</span>
-                    </button>
-                </div>
-
-                <!-- Chart Content -->
-                <div class="lg:col-span-7">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
-                        <div class="flex justify-between items-end mb-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800">Acessos à API</h3>
-                                <p class="text-xs text-slate-500">Crescimento do consumo de dados públicos</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="updateApiData('2023')" class="text-xs px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors focus:ring-2 focus:ring-teal-500">2023</button>
-                                <button onclick="updateApiData('2024')" class="text-xs px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-medium hover:bg-teal-200 transition-colors focus:ring-2 focus:ring-teal-500">2024</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="apiChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h2 class="text-white font-bold text-xl mb-2">DEPAD</h2>
-            <p class="text-sm mb-6">Departamento de Avaliação e Gestão da Informação</p>
-            <div class="flex justify-center gap-4 text-xs uppercase tracking-widest opacity-60">
-                <span>MDS</span>
-                <span>&bull;</span>
-                <span>SESAN</span>
-                <span>&bull;</span>
-                <span>Brasil</span>
-            </div>
-            <p class="text-xs mt-8 text-slate-600">Painel informativo desenvolvido para fins de demonstração.</p>
-        </div>
-    </footer>
-
     <script>
-        // --- Mobile Menu Toggle ---
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+        // Initialize Icons
+        lucide.createIcons();
 
-        // --- Flow Diagram Interaction ---
-        function updateFlowInfo(step) {
-            const box = document.getElementById('flow-info-box');
-            const contents = {
-                'conab': "<strong>Origem na Conab:</strong> A Companhia Nacional de Abastecimento gera os dados primários da aquisição. O desafio aqui é garantir que o registro da ponta (o agricultor entregando o alimento) chegue digitalizado corretamente.",
-                'etl': "<strong>Normalização (ETL):</strong> O DEPAD aplica scripts Python/SQL para higienizar os dados. Exemplo: corrigir 'São Paulo' vs 'SAO PAULO', validar CNPJs inválidos e unificar bases históricas dispersas.",
-                'analise': "<strong>Uso Estratégico:</strong> Com dados limpos no Teradata, gestores podem ver em tempo real onde há insegurança alimentar e direcionar recursos do PAA de forma cirúrgica."
-            };
+        function switchTab(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+            });
             
-            // Simple fade effect
-            box.style.opacity = '0';
-            setTimeout(() => {
-                box.innerHTML = contents[step] || "Selecione uma etapa.";
-                box.style.opacity = '1';
-            }, 300);
-        }
-
-        // --- Chart Configurations ---
-        
-        // 1. Performance Chart (Bar)
-        const ctxPerf = document.getElementById('performanceChart').getContext('2d');
-        new Chart(ctxPerf, {
-            type: 'bar',
-            data: {
-                labels: ['Relatório Simples', 'Cruzamento Mensal', 'Análise PAA x CadÚnico'],
-                datasets: [
-                    {
-                        label: 'Sistema Legado (Antigo)',
-                        data: [15, 60, 180],
-                        backgroundColor: '#cbd5e1',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Teradata (Novo)',
-                        data: [1, 5, 12],
-                        backgroundColor: '#0f766e',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } },
-                scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-            }
-        });
-
-        // 2. Migration Status (Doughnut)
-        const ctxMig = document.getElementById('migrationChart').getContext('2d');
-        new Chart(ctxMig, {
-            type: 'doughnut',
-            data: {
-                labels: ['Migrado & Validado', 'Em Processamento', 'Pendente'],
-                datasets: [{
-                    data: [72, 18, 10],
-                    backgroundColor: ['#0f766e', '#2dd4bf', '#e2e8f0'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: { legend: { position: 'right' } }
-            }
-        });
-
-        // 3. API Usage (Line) - Dynamic
-        let apiChart;
-        const apiDataSrc = {
-            '2023': [1200, 1500, 1800, 2200, 2600, 3100, 3500, 4000, 4200, 4800, 5100, 5500],
-            '2024': [6000, 7200, 8500, 9800, 11000, 13500, 15000, 16800, 18500, 21000, 23000, 25000]
-        };
-
-        function renderApiChart(year) {
-            const ctxApi = document.getElementById('apiChart').getContext('2d');
+            // Show selected view
+            const selectedView = document.getElementById('view-' + viewId);
+            selectedView.classList.remove('hidden');
             
-            if (apiChart) apiChart.destroy();
+            // Re-trigger animation
+            selectedView.classList.remove('fade-in');
+            void selectedView.offsetWidth; // trigger reflow
+            selectedView.classList.add('fade-in');
 
-            apiChart = new Chart(ctxApi, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                    datasets: [{
-                        label: `Requisições (${year})`,
-                        data: apiDataSrc[year],
-                        borderColor: '#7c3aed',
-                        backgroundColor: (context) => {
-                            const ctx = context.chart.ctx;
-                            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                            gradient.addColorStop(0, 'rgba(124, 58, 237, 0.2)');
-                            gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
-                            return gradient;
-                        },
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#7c3aed',
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    },
-                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
-                }
+            // Update Desktop Sidebar UI
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active-tab', 'bg-blue-600', 'text-white');
+                el.classList.add('text-slate-600');
             });
+            const activeNav = document.getElementById('nav-' + viewId);
+            if(activeNav) {
+                activeNav.classList.add('active-tab');
+                activeNav.classList.remove('text-slate-600');
+            }
+
+            // Update Mobile Nav UI (Simple color change)
+            // (Simplified for this demo code block)
         }
 
-        function updateApiData(year) {
-            renderApiChart(year);
+        function toggleDetail(stepId) {
+            const detailEl = document.getElementById('detail-' + stepId);
+            if (detailEl.classList.contains('hidden')) {
+                detailEl.classList.remove('hidden');
+            } else {
+                detailEl.classList.add('hidden');
+            }
         }
-
-        // Init
-        renderApiChart('2024');
-
-        // Scroll Spy for Navigation Active State
-        window.addEventListener('scroll', () => {
-            let current = '';
-            const sections = document.querySelectorAll('section');
-            const navLinks = document.querySelectorAll('.nav-link');
-
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (scrollY >= sectionTop - 150) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href').includes(current)) {
-                    link.classList.add('active');
-                }
-            });
-        });
-
     </script>
 </body>
 </html>
