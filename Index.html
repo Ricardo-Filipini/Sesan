@@ -40,6 +40,16 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+        /* Modal Transitions */
+        .modal-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-closed {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
@@ -406,56 +416,81 @@
                         <span class="text-3xl">🖼️</span> Galeria Visual
                     </h2>
                     <p class="text-slate-600 mt-2">Exploração visual dos dados, fluxos e impacto do PAA.</p>
+                    <p class="text-slate-400 text-xs mt-1 flex items-center gap-1"><i data-lucide="zoom-in" class="w-3 h-3"></i> Clique nos cartões para ampliar, baixar ou copiar.</p>
                 </div>
 
                 <!-- Masonry Layout using Tailwind columns -->
                 <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
                     
                     <!-- Item 1 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png" alt="Ciclo de Vida - Paisagem" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png', 'Ciclo de Vida (Visão Geral)')">
+                        <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png" alt="Ciclo de Vida - Paisagem" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Ciclo de Vida (Visão Geral)</p>
                     </div>
 
                     <!-- Item 2 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png" alt="Dados - Retrato" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png', 'Fluxo de Dados Vertical')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png" alt="Dados - Retrato" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Fluxo de Dados Vertical</p>
                     </div>
 
                     <!-- Item 3 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_ciclo.png" alt="Ciclo - Quadrado" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_ciclo.png', 'Processo Simplificado')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_ciclo.png" alt="Ciclo - Quadrado" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Processo Simplificado</p>
                     </div>
 
                     <!-- Item 4 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_Dados.png" alt="Dados - Paisagem" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_Dados.png', 'Panorama de Dados')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_Dados.png" alt="Dados - Paisagem" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Panorama de Dados</p>
                     </div>
 
                     <!-- Item 5 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_transformacao.png" alt="Transformação - Retrato" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_transformacao.png', 'Jornada de Transformação Digital')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_transformacao.png" alt="Transformação - Retrato" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Jornada de Transformação Digital</p>
                     </div>
 
                     <!-- Item 6 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_dados.png" alt="Dados - Quadrado" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_dados.png', 'Métricas Chave')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_dados.png" alt="Dados - Quadrado" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Métricas Chave</p>
                     </div>
 
                     <!-- Item 7 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png" alt="Transformação - Paisagem" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png', 'Evolução dos Sistemas')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png" alt="Transformação - Paisagem" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Evolução dos Sistemas</p>
                     </div>
 
                     <!-- Item 8 -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_ciclo.png" alt="Ciclo - Retrato" class="w-full rounded-lg">
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openGalleryModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_ciclo.png', 'Detalhe Operacional')">
+                         <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_ciclo.png" alt="Ciclo - Retrato" class="w-full transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
                         <p class="p-3 text-sm font-semibold text-slate-700">Detalhe Operacional</p>
                     </div>
 
@@ -553,6 +588,30 @@
         </div>
     </nav>
 
+    <!-- Gallery Lightbox / Modal -->
+    <div id="gallery-modal" class="fixed inset-0 z-[100] hidden bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 modal-closed transition-opacity duration-300" onclick="closeGalleryModal(event)">
+        <div class="relative w-full max-w-6xl max-h-[95vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <!-- Toolbar -->
+            <div class="absolute -top-12 right-0 md:top-4 md:right-4 flex gap-2 z-10">
+                <button onclick="copyImageToClipboard()" class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/10" title="Copiar Imagem (Blob)">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+                <button onclick="downloadCurrentImage()" class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/10" title="Baixar Imagem">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                <button onclick="closeGalleryModal()" class="bg-red-500/80 hover:bg-red-600 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/10" title="Fechar">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Image Container -->
+            <img id="modal-image" src="" alt="Full View" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain bg-black/50">
+            
+            <!-- Caption -->
+            <p id="modal-caption" class="text-white mt-4 font-semibold text-lg drop-shadow-md text-center px-4"></p>
+        </div>
+    </div>
+
     <script>
         // Initialize Icons
         lucide.createIcons();
@@ -585,10 +644,9 @@
                 activeNav.classList.remove('text-slate-600');
             }
 
-            // Update Mobile Nav UI (Simple color highlight logic for mobile)
+            // Update Mobile Nav UI
             const mobileButtons = document.querySelectorAll('nav button');
             mobileButtons.forEach(btn => {
-                // Check if the click handler string contains the viewId
                 if(btn.getAttribute('onclick').includes(viewId)) {
                     btn.classList.add('text-blue-600');
                     btn.classList.remove('text-slate-500');
@@ -605,6 +663,84 @@
                 detailEl.classList.remove('hidden');
             } else {
                 detailEl.classList.add('hidden');
+            }
+        }
+
+        /* --- Modal / Lightbox Logic --- */
+        let currentImgUrl = '';
+
+        function openGalleryModal(url, title) {
+            const modal = document.getElementById('gallery-modal');
+            const img = document.getElementById('modal-image');
+            const caption = document.getElementById('modal-caption');
+
+            currentImgUrl = url;
+            img.src = url;
+            caption.textContent = title;
+
+            modal.classList.remove('hidden');
+            // Small timeout to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.remove('modal-closed');
+                modal.classList.add('modal-open');
+            }, 10);
+        }
+
+        function closeGalleryModal(event) {
+            // Optional: check if event target is exactly the backdrop
+            if (event && event.type === 'click' && event.target !== event.currentTarget) return; 
+
+            const modal = document.getElementById('gallery-modal');
+            modal.classList.remove('modal-open');
+            modal.classList.add('modal-closed');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('modal-image').src = '';
+            }, 300);
+        }
+
+        async function copyImageToClipboard() {
+            try {
+                // Fetch image as blob
+                const response = await fetch(currentImgUrl);
+                const blob = await response.blob();
+                
+                // Write blob to clipboard
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob
+                    })
+                ]);
+                alert('Imagem copiada para a área de transferência!');
+            } catch (err) {
+                console.error('Falha ao copiar: ', err);
+                // Fallback: Copy URL
+                navigator.clipboard.writeText(currentImgUrl).then(() => {
+                    alert('Link da imagem copiado (O navegador bloqueou a cópia direta da imagem).');
+                });
+            }
+        }
+
+        async function downloadCurrentImage() {
+            try {
+                // Fetch as blob to force download instead of opening in tab
+                const response = await fetch(currentImgUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                const filename = currentImgUrl.split('/').pop() || 'infografico-depad.png';
+                link.download = filename;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                window.URL.revokeObjectURL(url);
+            } catch (e) {
+                // Fallback if fetch fails (e.g. CORS strict)
+                window.open(currentImgUrl, '_blank');
             }
         }
     </script>
