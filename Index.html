@@ -2,577 +2,537 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEPAD | Inteligência de Dados PAA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DEPAD | Hub de Inteligência</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .active-nav {
-            background-color: #eff6ff; /* blue-50 */
-            color: #2563eb; /* blue-600 */
+        /* Navigation Active State */
+        .nav-item.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            font-weight: 600;
             border-right: 3px solid #2563eb;
         }
         
-        .card-hover { transition: all 0.2s; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-
-        /* Modal Transitions */
-        .modal-open { opacity: 1; pointer-events: auto; }
-        .modal-closed { opacity: 0; pointer-events: none; }
-
-        /* Tooltip styling */
-        .tooltip-trigger:hover + .tooltip-content {
-            display: block;
+        /* Sidebar Logic */
+        .sidebar-expanded .nav-text { display: inline-block; }
+        .sidebar-collapsed .nav-text { display: none; }
+        .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        .sidebar-collapsed .section-title { display: none; }
+        
+        /* Interactive Elements */
+        .interactive-card { transition: all 0.2s ease-out; cursor: pointer; }
+        .interactive-card:active { transform: scale(0.98); }
+        .interactive-card:hover { 
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.1);
+            border-color: #93c5fd;
         }
+
+        /* Ecosystem Diagram Nodes */
+        .eco-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .eco-node:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+        .eco-node.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Modal Backdrop */
+        .backdrop { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden selection:bg-blue-100 selection:text-blue-900">
 
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 z-20 flex-none h-16">
-        <div class="h-full px-6 flex items-center justify-between">
+    <header class="bg-white border-b border-slate-200 z-30 h-16 flex-none shadow-sm">
+        <div class="h-full px-4 md:px-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-lg text-white shadow-lg shadow-blue-200">
+                <button onclick="toggleSidebar()" class="hidden md:flex p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Menu">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200">
                     <i data-lucide="database" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 leading-tight">DEPAD <span class="font-light text-slate-500">| Dados & Sistemas</span></h1>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Secretaria Nacional de Segurança Alimentar e Nutricional</p>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">DEPAD <span class="font-light text-slate-400">| Hub</span></h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wide font-bold hidden md:block">Secretaria Nacional de Segurança Alimentar</p>
                 </div>
             </div>
-            <div class="hidden md:flex items-center gap-6 text-xs font-medium text-slate-500">
-                <span class="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-100">
-                    <i data-lucide="check-circle" class="w-3 h-3"></i> Lei 14.628/2023
-                </span>
-                <span class="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
-                    <i data-lucide="server" class="w-3 h-3"></i> Teradata Powered
-                </span>
+            
+            <!-- Tags (Cleaned) -->
+            <div class="hidden md:flex items-center gap-3">
+                <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full border border-slate-200 text-xs font-medium text-slate-600">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-500"></i>
+                    <span>Lei 14.628</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full border border-slate-200 text-xs font-medium text-slate-600">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>Governança Ativa</span>
+                </div>
             </div>
+
+            <!-- Mobile Info -->
+            <button class="md:hidden text-slate-400 p-2" onclick="alert('Versão 5.0 - Otimizada para Mobile')">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </button>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden w-full">
+    <div class="flex flex-1 overflow-hidden w-full relative">
         
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col flex-shrink-0 overflow-y-auto pb-4">
-            <div class="p-4 space-y-6">
+        <!-- Sidebar (Desktop) -->
+        <aside id="desktop-sidebar" class="bg-white border-r border-slate-200 hidden md:flex flex-col flex-shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 w-72 sidebar-expanded">
+            <div class="flex-1 overflow-y-auto py-6 px-3 space-y-6">
                 
-                <!-- Section 1 -->
+                <!-- Gestão -->
                 <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-3">Gestão da Política</div>
+                    <div class="section-title text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 pl-3 truncate">Gestão da Política</div>
                     <nav class="space-y-1">
-                        <button onclick="switchTab('marco-legal')" id="nav-marco-legal" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors active-nav">
-                            <i data-lucide="scale" class="w-4 h-4"></i> Marco Legal & Dados
+                        <button onclick="switchTab('home')" id="nav-home" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors active">
+                            <i data-lucide="radar" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Radar de Gestão</span>
                         </button>
-                        <button onclick="switchTab('institucional')" id="nav-institucional" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="building-2" class="w-4 h-4"></i> Arquitetura Institucional
+                        <button onclick="switchTab('fluxo')" id="nav-fluxo" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="workflow" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Fluxo Operacional</span>
                         </button>
-                        <button onclick="switchTab('fluxo')" id="nav-fluxo" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="workflow" class="w-4 h-4"></i> Fluxo Operacional
+                        <button onclick="switchTab('legislacao')" id="nav-legislacao" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="scale" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Legislação & Normas</span>
                         </button>
                     </nav>
                 </div>
 
-                <!-- Section 2 -->
+                <!-- Inteligência -->
                 <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-3">Inteligência de Dados</div>
+                    <div class="section-title text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 pl-3 truncate">Inteligência & Tech</div>
                     <nav class="space-y-1">
-                        <button onclick="switchTab('ecossistema')" id="nav-ecossistema" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="network" class="w-4 h-4"></i> Ecossistema & Tech
+                        <button onclick="switchTab('ecossistema')" id="nav-ecossistema" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="network" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Ecossistema de Dados</span>
                         </button>
-                        <button onclick="switchTab('estrategia')" id="nav-estrategia" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="pie-chart" class="w-4 h-4"></i> Estratégia & Indicadores
+                        <button onclick="switchTab('estrategia')" id="nav-estrategia" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="pie-chart" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Estratégia & KPIs</span>
                         </button>
                     </nav>
                 </div>
 
-                <!-- Section 3 -->
+                <!-- Acervo -->
                 <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-3">Acervo</div>
+                    <div class="section-title text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 pl-3 truncate">Acervo Digital</div>
                     <nav class="space-y-1">
-                        <button onclick="switchTab('gallery')" id="nav-gallery" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="image" class="w-4 h-4"></i> Infográficos
+                        <button onclick="switchTab('gallery')" id="nav-gallery" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="image" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Infográficos</span>
                         </button>
-                        <button onclick="switchTab('video')" id="nav-video" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="play-circle" class="w-4 h-4"></i> Vídeo
+                        <button onclick="switchTab('video')" id="nav-video" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="video" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Vídeos</span>
                         </button>
-                        <button onclick="switchTab('docs')" id="nav-docs" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="file-text" class="w-4 h-4"></i> Documentos
+                        <button onclick="switchTab('docs')" id="nav-docs" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="file-text" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Apresentações</span>
                         </button>
                     </nav>
                 </div>
             </div>
             
-            <!-- Footer widget -->
-            <div class="mt-auto px-4">
-                <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-                    <h4 class="text-indigo-900 font-bold text-xs mb-1">Dica do Sistema</h4>
-                    <p class="text-[10px] text-indigo-700 leading-snug">O "Termo de Adesão" funciona como a entidade-raiz (Tabela Pai) no banco de dados SISPAA.</p>
+            <div class="p-4 bg-slate-50 border-t border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center text-blue-600 font-bold text-xs">MDS</div>
+                    <div class="nav-text">
+                        <p class="text-xs font-bold text-slate-700">SESAN / DEPAD</p>
+                        <p class="text-[10px] text-slate-500">v5.0 Stable</p>
+                    </div>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto bg-slate-50 p-6 md:p-10 relative scroll-smooth" id="main-content">
-
-            <!-- VIEW: MARCO LEGAL (NEW) -->
-            <div id="view-marco-legal" class="view-section fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Marco Legal & Tradução de Dados</h2>
-                    <p class="text-slate-600 mt-2">Como a legislação brasileira se transforma em regras de banco de dados e validações algorítmicas no SISPAA.</p>
-                </div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <!-- Lei 14.628 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-lucide="scale" class="w-24 h-24 text-blue-600"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Lei nº 14.628/2023 (Recriação PAA)</h3>
-                        <p class="text-xs text-blue-600 font-semibold mb-4 uppercase">Missão: Combate à Fome</p>
-                        
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i data-lucide="database" class="w-3 h-3"></i> Reflexo no Banco de Dados</h4>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2">
-                                    <span class="text-blue-500">•</span>
-                                    <span>Define as <strong>Modalidades</strong> (ex: Compra com Doação, PAA Leite) como tipologias de dados distintas.</span>
-                                </li>
-                                <li class="flex gap-2">
-                                    <span class="text-blue-500">•</span>
-                                    <span>Gera fluxos transacionais (hortifruti) ou contínuos (leite) dependendo da modalidade.</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Lei 11.326 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-lucide="users" class="w-24 h-24 text-green-600"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Lei nº 11.326 (Agricultura Familiar)</h3>
-                        <p class="text-xs text-green-600 font-semibold mb-4 uppercase">Missão: Elegibilidade</p>
-                        
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i data-lucide="key" class="w-3 h-3"></i> Chave Estrangeira / Validação</h4>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2">
-                                    <span class="text-green-500">•</span>
-                                    <span>Exige validação de <strong>CPF</strong> contra a base do MDA (CAF/DAP).</span>
-                                </li>
-                                <li class="flex gap-2">
-                                    <span class="text-green-500">•</span>
-                                    <span>Interoperabilidade: Sem CAF/DAP "Ativo", o sistema bloqueia o cadastro (Integridade Referencial).</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Decreto 11.802 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-lucide="file-check" class="w-24 h-24 text-amber-600"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Decreto nº 11.802 (Execução)</h3>
-                        <p class="text-xs text-amber-600 font-semibold mb-4 uppercase">Missão: Formalização</p>
-                        
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i data-lucide="table" class="w-3 h-3"></i> Entidade Raiz</h4>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2">
-                                    <span class="text-amber-500">•</span>
-                                    <span>Cria a entidade <strong>"Termo de Adesão"</strong>.</span>
-                                </li>
-                                <li class="flex gap-2">
-                                    <span class="text-amber-500">•</span>
-                                    <span>Vincula metadados territoriais (Código IBGE) e bancários a todas as transações filhas.</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Resolução GGPAA -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-lucide="heart-handshake" class="w-24 h-24 text-pink-600"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Resolução GGPAA nº 3 (Priorização)</h3>
-                        <p class="text-xs text-pink-600 font-semibold mb-4 uppercase">Missão: Equidade</p>
-                        
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i data-lucide="code" class="w-3 h-3"></i> Regras de Negócio</h4>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2">
-                                    <span class="text-pink-500">•</span>
-                                    <span>Campos obrigatórios: Sexo, Raça/Cor, Etnia.</span>
-                                </li>
-                                <li class="flex gap-2">
-                                    <span class="text-pink-500">•</span>
-                                    <span>Algoritmo de Cotas: Monitora meta de 50% mulheres (IN005) e inclusão de PCTs.</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW: INSTITUCIONAL (NEW) -->
-            <div id="view-institucional" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Arquitetura Institucional</h2>
-                    <p class="text-slate-600 mt-2">Quem é quem na gestão dos dados e da política pública.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- SESAN -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-indigo-600">
-                        <div class="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 text-indigo-700">
-                            <i data-lucide="landmark" class="w-6 h-6"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800">SESAN</h3>
-                        <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Secretaria Nacional</p>
-                        <p class="text-sm text-slate-600">Pilar estratégico. Define as necessidades da política e articula o Direito Humano à Alimentação Adequada (DHAA).</p>
-                    </div>
-
-                    <!-- DEPAD -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-blue-600">
-                        <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4 text-blue-700">
-                            <i data-lucide="settings" class="w-6 h-6"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800">DEPAD</h3>
-                        <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Departamento Operacional</p>
-                        <p class="text-sm text-slate-600">O "motor" do programa. Gera dados transacionais (convênios, empenhos), define regras de negócio e executa as compras.</p>
-                    </div>
-
-                    <!-- SAGICAD -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-purple-600">
-                        <div class="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center mb-4 text-purple-700">
-                            <i data-lucide="pie-chart" class="w-6 h-6"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800">SAGICAD</h3>
-                        <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Inteligência de Dados</p>
-                        <p class="text-sm text-slate-600">A "refinaria". Gere o Data Warehouse, higieniza dados, calcula indicadores e mantém o VisData.</p>
-                    </div>
-
-                    <!-- CONAB -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-amber-600">
-                        <div class="h-10 w-10 bg-amber-100 rounded-lg flex items-center justify-center mb-4 text-amber-700">
-                            <i data-lucide="truck" class="w-6 h-6"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800">CONAB</h3>
-                        <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Executora Parceira</p>
-                        <p class="text-sm text-slate-600">Opera descentralizadamente com sistema próprio (PAA Net), gerando o desafio de interoperabilidade.</p>
-                    </div>
-                </div>
-
-                <div class="mt-6 bg-slate-100 p-5 rounded-xl border border-slate-200">
-                    <h4 class="font-bold text-slate-800 flex items-center gap-2 mb-2">
-                        <i data-lucide="users" class="w-5 h-5 text-slate-500"></i> Capital Humano e Continuidade
-                    </h4>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        A estabilidade do PAA depende de "âncoras de conhecimento" — perfis técnicos especializados que atravessam ciclos políticos. A governança não é feita apenas por sistemas, mas por gestores que entendem tanto da operação de campo (zootecnia, agronomia) quanto da arquitetura de dados, garantindo que os algoritmos reflitam a realidade rural.
-                    </p>
-                </div>
-            </div>
-
-            <!-- VIEW: FLUXO OPERACIONAL (NEW) -->
-            <div id="view-fluxo" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4 flex justify-between items-end">
+        <main class="flex-1 overflow-y-auto bg-slate-50/50 p-4 pb-32 md:p-8 md:pb-12 relative scroll-smooth" id="main-content">
+            
+            <!-- TAB: RADAR DE GESTÃO -->
+            <div id="view-home" class="view-section fade-in max-w-6xl mx-auto">
+                <div class="mb-8 flex justify-between items-end">
                     <div>
-                        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Fluxo Operacional</h2>
-                        <p class="text-slate-600 mt-2">O passo a passo da modalidade "Compra com Doação Simultânea".</p>
+                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="radar" class="w-6 h-6 text-blue-600"></i> Radar de Gestão
+                        </h2>
+                        <p class="text-slate-500">Painel de controle unificado para o gestor.</p>
                     </div>
-                    <span class="hidden md:inline-flex items-center gap-1 text-xs font-semibold bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                        <i data-lucide="book-open" class="w-3 h-3"></i> Baseado no Guia Introdutório
-                    </span>
+                    <div class="bg-white rounded-lg border border-slate-200 p-1 flex">
+                        <button onclick="toggleRadar('strategic')" id="btn-strategic" class="px-4 py-1.5 rounded-md text-xs font-bold text-blue-700 bg-blue-50 transition-all">Estratégico</button>
+                        <button onclick="toggleRadar('operational')" id="btn-operational" class="px-4 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:bg-slate-50 transition-all">Operacional</button>
+                    </div>
                 </div>
 
-                <div class="relative space-y-8 pl-8 before:content-[''] before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                    
-                    <!-- Passo 1 -->
-                    <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">1</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Adesão & SISAN</h3>
-                            <p class="text-sm text-slate-600 mt-1">Instrumento jurídico. Pré-requisito: adesão ao Sistema Nacional de Segurança Alimentar (SISAN).</p>
+                <!-- Visão Estratégica -->
+                <div id="radar-strategic" class="block fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Capilaridade</span>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-2">Nacional</h3>
+                            <p class="text-xs text-green-600 mt-1 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> Expansão 2025</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-pink-300 transition-colors">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Meta Gênero</span>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-2">50%</h3>
+                            <p class="text-xs text-slate-500 mt-1">Lei 14.628 (Mulheres)</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-green-300 transition-colors">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Execução (IN111)</span>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-2">SIAFI</h3>
+                            <p class="text-xs text-slate-500 mt-1">Pago vs. Empenhado</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-purple-300 transition-colors">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Focalização (IN023)</span>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-2">CadÚnico</h3>
+                            <p class="text-xs text-slate-500 mt-1">Prioridade: Pobreza</p>
                         </div>
                     </div>
 
-                    <!-- Passo 2 -->
-                    <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">2</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Pactuação Financeira</h3>
-                            <p class="text-sm text-slate-600 mt-1">O MDS publica limites no DOU. O gestor tem <strong class="text-amber-600">30 dias</strong> para dar o "Aceite" no SISPAA.</p>
-                        </div>
-                    </div>
-
-                    <!-- Passo 3 -->
-                    <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">3</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Planejamento (Proposta)</h3>
-                            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                <div class="bg-slate-50 p-2 rounded border border-slate-100">
-                                    <span class="font-semibold text-slate-700 block mb-1">Diagnóstico:</span>
-                                    Oferta (Agricultores) vs. Demanda (Entidades).
+                    <div class="bg-slate-900 rounded-xl p-8 text-white relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xl font-bold mb-2">Ciclo da Política Pública</h3>
+                            <p class="text-slate-400 text-sm max-w-2xl mb-6">A gestão do PAA conecta a demanda alimentar à oferta produtiva. Um ciclo virtuoso que gera renda e combate a fome.</p>
+                            <div class="flex flex-wrap gap-4">
+                                <div class="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/10">
+                                    <span class="block text-xs text-slate-400 uppercase">Fase 1</span>
+                                    <strong class="text-sm">Diagnóstico Local</strong>
                                 </div>
-                                <div class="bg-slate-50 p-2 rounded border border-slate-100">
-                                    <span class="font-semibold text-slate-700 block mb-1">Controle Social:</span>
-                                    Aprovação do CONSEA é obrigatória (Trava de sistema).
+                                <div class="text-slate-600 flex items-center">→</div>
+                                <div class="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/10">
+                                    <span class="block text-xs text-slate-400 uppercase">Fase 2</span>
+                                    <strong class="text-sm">Compra Direta</strong>
+                                </div>
+                                <div class="text-slate-600 flex items-center">→</div>
+                                <div class="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/10">
+                                    <span class="block text-xs text-slate-400 uppercase">Fase 3</span>
+                                    <strong class="text-sm">Doação Simultânea</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Passo 4 -->
-                    <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">4</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Emissão de Cartões</h3>
-                            <p class="text-sm text-slate-600 mt-1">MDS solicita ao Banco do Brasil. A execução só começa quando status for <strong class="text-green-600">"EMITIDO"</strong>.</p>
+                <!-- Visão Operacional -->
+                <div id="radar-operational" class="hidden fade-in">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i> Alertas Operacionais
+                            </h3>
+                            <span class="text-xs bg-white border border-slate-200 px-2 py-1 rounded text-slate-500">Hoje</span>
                         </div>
-                    </div>
-
-                    <!-- Passo 5 -->
-                    <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">5</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Execução (O Evento Físico)</h3>
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded border border-gray-200">Entrega do Agricultor</span>
-                                <span class="text-gray-400">→</span>
-                                <span class="px-2 py-1 bg-yellow-50 text-yellow-700 text-xs rounded border border-yellow-100 font-semibold">Termo de Recebimento</span>
-                                <span class="text-gray-400">→</span>
-                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded border border-gray-200">Doação à Entidade</span>
+                        <div class="divide-y divide-slate-100">
+                            <div class="p-4 hover:bg-slate-50 transition-colors flex gap-4 items-start">
+                                <div class="bg-red-100 p-2 rounded text-red-600 shrink-0"><i data-lucide="clock" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800">Prazo de Aceite (30 dias)</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Após a publicação da Portaria, o gestor deve dar o aceite no SISPAA. A perda do prazo implica remanejamento do recurso para outro município.</p>
+                                </div>
                             </div>
-                            <p class="text-xs text-red-500 mt-2 flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Risco: Erro de transcrição manual (Gap Analógico).</p>
+                            <div class="p-4 hover:bg-slate-50 transition-colors flex gap-4 items-start">
+                                <div class="bg-amber-100 p-2 rounded text-amber-600 shrink-0"><i data-lucide="lock" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800">Trava do Controle Social</h4>
+                                    <p class="text-xs text-slate-500 mt-1">A execução financeira é bloqueada sistemicamente se não houver registro da ata do COMSEA na aba "Controle Social".</p>
+                                </div>
+                            </div>
+                            <div class="p-4 hover:bg-slate-50 transition-colors flex gap-4 items-start">
+                                <div class="bg-blue-100 p-2 rounded text-blue-600 shrink-0"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800">Status do Cartão</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Verifique se o cartão do agricultor está "EMITIDO" antes de receber os produtos. Cartões "A SOLICITAR" não recebem pagamento.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                     <!-- Passo 6 -->
-                     <div class="relative">
-                        <div class="absolute -left-[39px] bg-blue-600 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">6</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
-                            <h3 class="font-bold text-lg text-slate-800">Pagamento</h3>
-                            <p class="text-sm text-slate-600 mt-1">Segregação de funções: Coordenador lança → Titular Atesta. MDS processa e BB paga.</p>
-                        </div>
-                    </div>
-
-                    <!-- Passo 7 -->
-                     <div class="relative">
-                        <div class="absolute -left-[39px] bg-slate-400 h-8 w-8 rounded-full border-4 border-slate-50 flex items-center justify-center text-white text-xs font-bold">7</div>
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm opacity-75">
-                            <h3 class="font-bold text-lg text-slate-800">Encerramento</h3>
-                            <p class="text-sm text-slate-600 mt-1">Solicitação formal via e-mail. Requisito para nova proposta.</p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
-            <!-- VIEW: ECOSSISTEMA & TECH (NEW) -->
-            <div id="view-ecossistema" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Ecossistema de Dados & Tecnologia</h2>
-                    <p class="text-slate-600 mt-2">Arquitetura OLTP/OLAP, Big Data e Interoperabilidade.</p>
-                </div>
-
-                <!-- Top Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="server" class="w-5 h-5"></i></div>
-                            <h3 class="font-bold text-slate-800">Sistemas Transacionais (OLTP)</h3>
-                        </div>
-                        <p class="text-sm text-slate-600 mb-3">Registram o dia a dia. Porta de entrada.</p>
-                        <ul class="text-xs space-y-2 text-slate-500">
-                            <li class="flex items-center gap-2"><i data-lucide="monitor" class="w-3 h-3"></i> <strong>SISPAA (MDS):</strong> Java/JBoss. Core da adesão.</li>
-                            <li class="flex items-center gap-2"><i data-lucide="monitor" class="w-3 h-3"></i> <strong>PAA Net (Conab):</strong> Lógica de projetos.</li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative">
-                         <!-- ETL Arrow -->
-                         <div class="hidden md:block absolute -left-4 top-1/2 -translate-y-1/2 z-10">
-                            <div class="bg-slate-100 p-1 rounded-full border border-slate-200 text-slate-400">
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="p-2 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="filter" class="w-5 h-5"></i></div>
-                            <h3 class="font-bold text-slate-800">Processo ETL</h3>
-                        </div>
-                        <p class="text-sm text-slate-600 mb-3">Extract, Transform, Load. A "faxina".</p>
-                        <div class="text-xs bg-slate-50 p-2 rounded border border-slate-100 text-slate-600">
-                            <strong>Desafio Semântico:</strong> Unificar "Macaxeira" (Nordeste) e "Mandioca" (Sul) em um código único.
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-b-4 border-b-orange-500">
-                         <!-- Load Arrow -->
-                         <div class="hidden md:block absolute -left-4 top-1/2 -translate-y-1/2 z-10">
-                            <div class="bg-slate-100 p-1 rounded-full border border-slate-200 text-slate-400">
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="p-2 bg-orange-50 text-orange-600 rounded-lg"><i data-lucide="database" class="w-5 h-5"></i></div>
-                            <h3 class="font-bold text-slate-800">Analítico (OLAP) - Teradata</h3>
-                        </div>
-                        <p class="text-sm text-slate-600 mb-3">O Cérebro. Processamento Paralelo Massivo.</p>
-                        <ul class="text-xs space-y-2 text-slate-500">
-                            <li class="flex items-center gap-2"><i data-lucide="zap" class="w-3 h-3"></i> Cruza bilhões de linhas (PAA x CadÚnico).</li>
-                            <li class="flex items-center gap-2"><i data-lucide="layers" class="w-3 h-3"></i> Fonte do VisData.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Interoperabilidade -->
-                <div class="bg-slate-900 text-white rounded-xl p-8 relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="share-2" class="w-6 h-6 text-blue-400"></i> O Futuro: APIs e Interoperabilidade</h3>
-                        <p class="text-slate-300 text-sm max-w-2xl mb-6">
-                            Superando os silos institucionais (MDS vs Conab) através de <strong>APIs</strong> (Application Programming Interfaces). Substituindo a troca de planilhas por comunicação em tempo real ("Garçons Digitais").
-                        </p>
-                        <div class="flex gap-4">
-                            <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-mono border border-white/20">JSON/REST</span>
-                            <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-mono border border-white/20">Swagger Docs</span>
-                            <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-mono border border-white/20">Microservices</span>
-                        </div>
-                    </div>
-                    <i data-lucide="network" class="absolute right-[-20px] bottom-[-40px] w-64 h-64 text-white/5"></i>
-                </div>
-            </div>
-
-            <!-- VIEW: ESTRATÉGIA (NEW) -->
-            <div id="view-estrategia" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Estratégia & Indicadores</h2>
-                    <p class="text-slate-600 mt-2">Da análise descritiva à preditiva: o valor dos dados.</p>
-                </div>
-
-                <!-- Matriz de Indicadores -->
+            <!-- TAB: FLUXO OPERACIONAL -->
+            <div id="view-fluxo" class="view-section hidden fade-in max-w-5xl mx-auto">
                 <div class="mb-8">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="layout-grid" class="w-5 h-5 text-blue-600"></i> Matriz de Indicadores</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Card 1 -->
-                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-400 transition-colors">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-[10px] font-bold uppercase text-blue-600 tracking-wider">Inclusão</span>
-                                <span class="text-xs font-mono text-slate-400">IN023</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm">Focalização no CadÚnico</h4>
-                            <p class="text-xs text-slate-500 mt-2">"O programa atinge os mais pobres?" Depende do cruzamento no Teradata.</p>
-                        </div>
-                        <!-- Card 2 -->
-                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-pink-400 transition-colors">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-[10px] font-bold uppercase text-pink-600 tracking-wider">Gênero</span>
-                                <span class="text-xs font-mono text-slate-400">IN005</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm">Participação Feminina</h4>
-                            <p class="text-xs text-slate-500 mt-2">Conecta o programa ao <strong>ODS 5</strong> (Igualdade de Gênero).</p>
-                        </div>
-                        <!-- Card 3 -->
-                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-green-400 transition-colors">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-[10px] font-bold uppercase text-green-600 tracking-wider">Eficiência</span>
-                                <span class="text-xs font-mono text-slate-400">IN111</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm">Execução Orçamentária</h4>
-                            <p class="text-xs text-slate-500 mt-2">Pago vs. Empenhado. Identifica gargalos burocráticos.</p>
-                        </div>
-                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Fluxo Operacional</h2>
+                    <p class="text-slate-500">Passo a passo da modalidade Compra com Doação Simultânea.</p>
                 </div>
 
-                <!-- Modelo de Maturidade -->
-                <div class="bg-gradient-to-r from-slate-100 to-white p-6 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4">Maturidade Analítica do DEPAD</h3>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <div class="flex-1">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">Passado/Presente</div>
-                            <div class="bg-white p-3 rounded border border-slate-200">
-                                <strong class="block text-slate-700">Descritiva</strong>
-                                <span class="text-xs text-slate-500">"O que aconteceu?" (Relatórios SISPAA)</span>
+                <div class="relative border-l-2 border-slate-200 ml-4 space-y-8 pb-4 pl-8">
+                    <!-- Step 1 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[41px] top-0 bg-blue-600 w-4 h-4 rounded-full border-2 border-white shadow"></div>
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                            <h3 class="font-bold text-lg text-slate-800">1. Adesão & SISAN</h3>
+                            <p class="text-sm text-slate-600 mt-1">O município deve aderir ao Sistema Nacional de Segurança Alimentar (SISAN) como pré-requisito.</p>
+                            <div class="mt-3 text-xs bg-slate-100 p-2 rounded inline-block text-slate-600"><strong>Doc:</strong> Termo de Adesão</div>
+                        </div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[41px] top-0 bg-slate-300 w-4 h-4 rounded-full border-2 border-white shadow"></div>
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                            <h3 class="font-bold text-lg text-slate-800">2. Planejamento (Proposta)</h3>
+                            <p class="text-sm text-slate-600 mt-1">Cadastro de agricultores (Check de DAPs ativas) e definição de produtos/preços.</p>
+                        </div>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[41px] top-0 bg-slate-300 w-4 h-4 rounded-full border-2 border-white shadow"></div>
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                            <h3 class="font-bold text-lg text-slate-800">3. Execução (Recebimento)</h3>
+                            <p class="text-sm text-slate-600 mt-1">Entrega física dos alimentos. Momento crítico para qualidade de dados (erro de digitação).</p>
+                            <div class="mt-3 text-xs bg-red-50 p-2 rounded border border-red-100 text-red-700 flex gap-2">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Risco: Gap Analógico (Papel → Sistema)
                             </div>
                         </div>
-                        <div class="flex items-center justify-center text-slate-300">→</div>
-                        <div class="flex-1">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">Presente</div>
-                            <div class="bg-white p-3 rounded border border-slate-200 border-l-4 border-l-blue-500">
-                                <strong class="block text-slate-700">Diagnóstica</strong>
-                                <span class="text-xs text-slate-500">"Por que aconteceu?" (Cruzamento CadÚnico)</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center text-slate-300">→</div>
-                        <div class="flex-1">
-                            <div class="text-xs font-bold text-slate-400 uppercase mb-1">Futuro</div>
-                            <div class="bg-white p-3 rounded border border-slate-200 border-l-4 border-l-purple-500">
-                                <strong class="block text-slate-700">Preditiva</strong>
-                                <span class="text-xs text-slate-500">"O que vai acontecer?" (Alerta de Quebra de Safra)</span>
-                            </div>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[41px] top-0 bg-green-500 w-4 h-4 rounded-full border-2 border-white shadow"></div>
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-green-300 transition-colors">
+                            <h3 class="font-bold text-lg text-slate-800">4. Pagamento</h3>
+                            <p class="text-sm text-slate-600 mt-1">Coordenador lança NFs → Titular atesta → MDS processa → BB paga no cartão.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: GALLERY, VIDEO, DOCS (Existing but updated) -->
-            <div id="view-gallery" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Galeria de Infográficos</h2>
-                    <p class="text-slate-600 mt-2">Visualizações do ecossistema e dados.</p>
+            <!-- TAB: ECOSSISTEMA (INTERATIVO) -->
+            <div id="view-ecossistema" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Ecossistema de Dados</h2>
+                    <p class="text-slate-500">Clique nos componentes para ver detalhes técnicos abaixo.</p>
+                </div>
+
+                <!-- Interactive Diagram -->
+                <div class="bg-slate-100 rounded-2xl p-8 border border-slate-200 mb-6 overflow-x-auto">
+                    <div class="min-w-[800px] flex justify-between items-center relative h-32">
+                        
+                        <!-- Line -->
+                        <div class="absolute top-1/2 left-20 right-20 h-1 bg-slate-300 -z-0"></div>
+
+                        <!-- Node 1 -->
+                        <div class="eco-node bg-white p-4 w-48 rounded-xl shadow-md border-2 border-blue-500 relative z-10 cursor-pointer flex flex-col items-center gap-2 group" onclick="showEcoDetail('source')">
+                            <div class="p-2 bg-blue-50 rounded-full text-blue-600"><i data-lucide="laptop" class="w-6 h-6"></i></div>
+                            <span class="font-bold text-sm text-slate-700">Fontes (OLTP)</span>
+                        </div>
+
+                        <!-- Arrow ETL -->
+                        <div class="z-10 bg-slate-800 text-white px-3 py-1 rounded-full text-xs font-mono font-bold shadow cursor-help" title="Extract, Transform, Load">ETL</div>
+
+                        <!-- Node 2 -->
+                        <div class="eco-node bg-white p-4 w-48 rounded-xl shadow-md border-2 border-orange-500 relative z-10 cursor-pointer flex flex-col items-center gap-2 group" onclick="showEcoDetail('warehouse')">
+                            <div class="p-2 bg-orange-50 rounded-full text-orange-600"><i data-lucide="server" class="w-6 h-6"></i></div>
+                            <span class="font-bold text-sm text-slate-700">Data Warehouse</span>
+                        </div>
+
+                        <!-- Arrow API -->
+                        <div class="z-10 bg-slate-800 text-white px-3 py-1 rounded-full text-xs font-mono font-bold shadow cursor-help" title="APIs de Integração">API</div>
+
+                        <!-- Node 3 -->
+                        <div class="eco-node bg-white p-4 w-48 rounded-xl shadow-md border-2 border-purple-500 relative z-10 cursor-pointer flex flex-col items-center gap-2 group" onclick="showEcoDetail('vis')">
+                            <div class="p-2 bg-purple-50 rounded-full text-purple-600"><i data-lucide="pie-chart" class="w-6 h-6"></i></div>
+                            <span class="font-bold text-sm text-slate-700">VisData</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inline Detail Box -->
+                <div id="eco-detail-box" class="bg-white rounded-xl border-l-4 border-blue-500 shadow-sm p-6 min-h-[140px] flex items-center transition-all duration-300">
+                    <div class="text-slate-400 flex items-center gap-3 animate-pulse">
+                        <i data-lucide="mouse-pointer-click" class="w-6 h-6"></i>
+                        <span class="text-sm font-medium">Selecione um componente acima para ver a descrição técnica.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: LEGISLAÇÃO (LISTA DE ARQUIVOS) -->
+            <div id="view-legislacao" class="view-section hidden fade-in max-w-5xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Legislação & Normas</h2>
+                    <p class="text-slate-500">Base legal do programa disponível para consulta.</p>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="divide-y divide-slate-100">
+                        <!-- File Items -->
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/Lei.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Lei nº 14.628/2023</h4>
+                                    <p class="text-xs text-slate-500">Lei de Recriação do PAA</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/Decreto.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Decreto nº 11.802</h4>
+                                    <p class="text-xs text-slate-500">Regulamentação Geral</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/PAA_Compra_com_Doacao_Simultanea_via_Termo_de_Adesao.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Manual Operativo CDS</h4>
+                                    <p class="text-xs text-slate-500">Compra com Doação Simultânea</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/Portaria%20de%20Fluxo.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Portaria de Fluxo</h4>
+                                    <p class="text-xs text-slate-500">Procedimentos Operacionais</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/Resolucao%20da%20destinacao%20dos%20alimentos%20-Grupo%20Gestor%20do%20PAA.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Resolução GGPAA (Destinação)</h4>
+                                    <p class="text-xs text-slate-500">Critérios de Doação</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/lei/Resolucao%20de%20Normas%20-Grupo%20Gestor%20do%20PAA.pdf" target="_blank" class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-red-50 p-2 rounded text-red-600"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600">Resolução GGPAA (Normas)</h4>
+                                    <p class="text-xs text-slate-500">Regras Gerais</p>
+                                </div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ESTRATÉGIA -->
+            <div id="view-estrategia" class="view-section hidden fade-in max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Estratégia & KPIs</h2>
+                    <p class="text-slate-500">Gestão baseada em evidências (Fonte: SAGICAD).</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
+                        <span class="text-xs font-mono text-slate-400 uppercase">IN023</span>
+                        <h3 class="text-3xl font-bold text-blue-600 my-2">Focalização</h3>
+                        <p class="text-xs text-slate-500">Agricultores no CadÚnico</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
+                        <span class="text-xs font-mono text-slate-400 uppercase">IN005</span>
+                        <h3 class="text-3xl font-bold text-pink-600 my-2">50%</h3>
+                        <p class="text-xs text-slate-500">Meta Mulheres (ODS 5)</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
+                        <span class="text-xs font-mono text-slate-400 uppercase">IN111</span>
+                        <h3 class="text-3xl font-bold text-green-600 my-2">Eficiência</h3>
+                        <p class="text-xs text-slate-500">Taxa de Execução Orçamentária</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: GALERIA (TODOS OS 10 ARQUIVOS) -->
+            <div id="view-gallery" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Infográficos</h2>
+                    <p class="text-slate-500">Acervo visual completo do ecossistema.</p>
                 </div>
                 <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-                    <!-- New Images -->
-                     <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Geral.png', 'Visão Geral do PAA')">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Geral.png" class="w-full rounded-lg">
-                        <p class="p-3 text-sm font-bold text-slate-700">Visão Geral do PAA</p>
+                    <!-- 1 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Geral.png', 'Visão Geral PAA')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Geral.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Visão Geral</p>
                     </div>
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/marco_legal.png', 'Marco Legal')">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/marco_legal.png" class="w-full rounded-lg">
-                        <p class="p-3 text-sm font-bold text-slate-700">Marco Legal</p>
+                    <!-- 2 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/marco_legal.png', 'Marco Legal')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/marco_legal.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Marco Legal</p>
                     </div>
-                    <!-- Existing Images (Sample) -->
-                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png', 'Ciclo de Vida')">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png" class="w-full rounded-lg">
-                        <p class="p-3 text-sm font-semibold text-slate-700">Ciclo de Vida</p>
+                    <!-- 3 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png', 'Ciclo de Vida')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_ciclo.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Ciclo de Vida</p>
                     </div>
-                     <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png', 'Fluxo de Dados')">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png" class="w-full rounded-lg">
-                        <p class="p-3 text-sm font-semibold text-slate-700">Fluxo de Dados</p>
+                    <!-- 4 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_Dados.png', 'Dados Panorama')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_Dados.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Dados Panorama</p>
                     </div>
-                     <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 card-hover cursor-zoom-in group" onclick="openModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png', 'Transformação Digital')">
-                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png" class="w-full rounded-lg">
-                        <p class="p-3 text-sm font-semibold text-slate-700">Transformação Digital</p>
+                    <!-- 5 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png', 'Transformação Digital')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Transformação Digital</p>
+                    </div>
+                    <!-- 6 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_ciclo.png', 'Ciclo Resumido')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_ciclo.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Ciclo Resumido</p>
+                    </div>
+                    <!-- 7 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_dados.png', 'Métricas Rápidas')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/quadrado_dados.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Métricas Rápidas</p>
+                    </div>
+                    <!-- 8 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_ciclo.png', 'Ciclo Vertical')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_ciclo.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Ciclo Vertical</p>
+                    </div>
+                    <!-- 9 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png', 'Dados Vertical')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_Dados.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Dados Vertical</p>
+                    </div>
+                    <!-- 10 -->
+                    <div class="break-inside-avoid bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-zoom-in group hover:shadow-md transition-shadow" onclick="openImageModal('https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_transformacao.png', 'Jornada Vertical')">
+                        <img src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Retrato_transformacao.png" class="w-full rounded-lg bg-slate-100">
+                        <p class="p-2 text-xs font-bold text-slate-600 text-center">Jornada Vertical</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Video Section -->
-            <div id="view-video" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Vídeo Institucional</h2>
+            <!-- TAB: VÍDEO -->
+            <div id="view-video" class="view-section hidden fade-in max-w-4xl mx-auto">
+                 <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Vídeo Institucional</h2>
                 </div>
-                <div class="bg-black rounded-xl overflow-hidden shadow-xl max-w-4xl mx-auto">
+                <div class="bg-black rounded-xl overflow-hidden shadow-2xl">
                     <video controls class="w-full aspect-video" poster="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/infografico/Paisagem_transformacao.png">
                         <source src="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/video/A_Maquina_Digital_do_Programa_de_Alimentos_do_Brasil.mp4" type="video/mp4">
                         Seu navegador não suporta a tag de vídeo.
@@ -580,24 +540,23 @@
                 </div>
             </div>
 
-            <!-- Docs Section -->
-             <div id="view-docs" class="view-section hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-4">
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Documentação</h2>
+            <!-- TAB: DOCS (APRESENTAÇÃO) -->
+            <div id="view-docs" class="view-section hidden fade-in max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Documentação Técnica</h2>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-[700px] flex flex-col">
-                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-700">Apresentação Técnica</h3>
-                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/apresentacao/Dados_e_Seguranca_Alimentar_Brasil.pdf" target="_blank" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[600px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-700">Apresentação: Dados & Segurança Alimentar</h3>
+                        <a href="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/apresentacao/Dados_e_Seguranca_Alimentar_Brasil.pdf" target="_blank" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
                             <i data-lucide="download" class="w-4 h-4"></i> Baixar PDF
                         </a>
                     </div>
-                    <div class="flex-1 bg-slate-100 rounded-lg border border-slate-300 overflow-hidden relative">
-                         <object data="https://xsfymwerlwsjofsrdpcb.supabase.co/storage/v1/object/public/src/apresentacao/Dados_e_Seguranca_Alimentar_Brasil.pdf" type="application/pdf" class="w-full h-full">
-                            <div class="flex flex-col items-center justify-center h-full text-slate-500">
-                                <p>Visualização indisponível.</p>
-                            </div>
-                        </object>
+                    <div class="flex-1 bg-slate-100 rounded-lg border border-slate-300 overflow-hidden relative flex items-center justify-center">
+                         <div class="text-center text-slate-500">
+                             <i data-lucide="file-text" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
+                             <p>Visualize o PDF baixando o arquivo.</p>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -605,73 +564,138 @@
         </main>
     </div>
 
-    <!-- Mobile Navigation -->
-    <nav class="md:hidden bg-white border-t border-slate-200 fixed bottom-0 w-full z-50 overflow-x-auto">
-        <div class="flex justify-between px-2 min-w-max">
-            <button onclick="switchTab('marco-legal')" class="p-3 text-slate-500 flex flex-col items-center w-16"><i data-lucide="scale" class="w-5 h-5"></i><span class="text-[9px] mt-1">Legal</span></button>
-            <button onclick="switchTab('institucional')" class="p-3 text-slate-500 flex flex-col items-center w-16"><i data-lucide="building-2" class="w-5 h-5"></i><span class="text-[9px] mt-1">Inst.</span></button>
-            <button onclick="switchTab('fluxo')" class="p-3 text-slate-500 flex flex-col items-center w-16"><i data-lucide="workflow" class="w-5 h-5"></i><span class="text-[9px] mt-1">Fluxo</span></button>
-            <button onclick="switchTab('ecossistema')" class="p-3 text-slate-500 flex flex-col items-center w-16"><i data-lucide="network" class="w-5 h-5"></i><span class="text-[9px] mt-1">Tech</span></button>
-            <button onclick="switchTab('gallery')" class="p-3 text-slate-500 flex flex-col items-center w-16"><i data-lucide="image" class="w-5 h-5"></i><span class="text-[9px] mt-1">Galeria</span></button>
+    <!-- Mobile Nav -->
+    <nav class="md:hidden bg-white border-t border-slate-200 fixed bottom-0 w-full z-40 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div class="flex justify-around items-center h-20 px-1">
+            <button onclick="switchTab('home')" class="nav-item-mobile flex flex-col items-center justify-center w-full h-full text-slate-400 active-mobile"><i data-lucide="radar" class="w-6 h-6 mb-1"></i></button>
+            <button onclick="switchTab('fluxo')" class="nav-item-mobile flex flex-col items-center justify-center w-full h-full text-slate-400"><i data-lucide="workflow" class="w-6 h-6 mb-1"></i></button>
+            <button onclick="switchTab('ecossistema')" class="nav-item-mobile flex flex-col items-center justify-center w-full h-full text-slate-400"><i data-lucide="network" class="w-6 h-6 mb-1"></i></button>
+            <button onclick="switchTab('gallery')" class="nav-item-mobile flex flex-col items-center justify-center w-full h-full text-slate-400"><i data-lucide="image" class="w-6 h-6 mb-1"></i></button>
+            <button onclick="switchTab('legislacao')" class="nav-item-mobile flex flex-col items-center justify-center w-full h-full text-slate-400"><i data-lucide="scale" class="w-6 h-6 mb-1"></i></button>
         </div>
     </nav>
 
-    <!-- Modal -->
-    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4 hidden modal-closed transition-opacity duration-300" onclick="closeModal()">
-        <div class="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
-            <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded shadow-2xl object-contain">
-            <p id="modal-title" class="text-white mt-4 text-lg font-semibold"></p>
-            <button onclick="closeModal()" class="absolute -top-10 right-0 text-white hover:text-red-400"><i data-lucide="x" class="w-8 h-8"></i></button>
-        </div>
+    <!-- Image Modal -->
+    <div id="img-modal" class="fixed inset-0 z-50 flex items-center justify-center backdrop hidden transition-opacity duration-300 p-4" onclick="closeImageModal()">
+        <button class="absolute top-4 right-4 bg-white/20 text-white p-2 rounded-full hover:bg-white/30"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <img id="modal-img-src" src="" class="max-w-full max-h-[85vh] rounded shadow-2xl bg-black">
+        <h3 id="modal-img-title" class="absolute bottom-10 text-white font-bold bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm"></h3>
     </div>
 
     <script>
         lucide.createIcons();
+        
+        let isSidebarCollapsed = false;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('desktop-sidebar');
+            isSidebarCollapsed = !isSidebarCollapsed;
+            
+            if (isSidebarCollapsed) {
+                sidebar.classList.add('w-20', 'sidebar-collapsed');
+                sidebar.classList.remove('w-72', 'sidebar-expanded');
+            } else {
+                sidebar.classList.remove('w-20', 'sidebar-collapsed');
+                sidebar.classList.add('w-72', 'sidebar-expanded');
+            }
+        }
 
         function switchTab(id) {
-            // Hide all sections
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            
-            // Show selected
             const target = document.getElementById('view-' + id);
             target.classList.remove('hidden');
             target.classList.remove('fade-in');
             void target.offsetWidth; 
             target.classList.add('fade-in');
 
-            // Update Nav Desktop
-            document.querySelectorAll('aside button').forEach(btn => {
-                btn.classList.remove('active-nav', 'bg-blue-50', 'text-blue-600');
-                btn.classList.add('text-slate-600');
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            const activeDesktop = document.getElementById('nav-' + id);
+            if(activeDesktop) activeDesktop.classList.add('active');
+
+            document.querySelectorAll('.nav-item-mobile').forEach(btn => {
+                btn.classList.remove('text-blue-600');
+                btn.classList.add('text-slate-400');
             });
-            const activeBtn = document.getElementById('nav-' + id);
-            if(activeBtn) activeBtn.classList.add('active-nav');
+            const mobileBtn = document.querySelector(`button[onclick="switchTab('${id}')"].nav-item-mobile`);
+            if(mobileBtn) {
+                mobileBtn.classList.remove('text-slate-400');
+                mobileBtn.classList.add('text-blue-600');
+            }
         }
 
-        // Default tab
-        switchTab('marco-legal');
+        function toggleRadar(type) {
+            document.getElementById('radar-strategic').classList.add('hidden');
+            document.getElementById('radar-operational').classList.add('hidden');
+            
+            document.getElementById('btn-strategic').classList.remove('bg-blue-50', 'text-blue-700', 'font-bold');
+            document.getElementById('btn-operational').classList.remove('bg-blue-50', 'text-blue-700', 'font-bold');
+            document.getElementById('btn-strategic').classList.add('text-slate-500');
+            document.getElementById('btn-operational').classList.add('text-slate-500');
 
-        // Modal Logic
-        function openModal(url, title) {
-            const modal = document.getElementById('modal');
-            document.getElementById('modal-img').src = url;
-            document.getElementById('modal-title').innerText = title;
+            document.getElementById('radar-' + type).classList.remove('hidden');
+            document.getElementById('btn-' + type).classList.add('bg-blue-50', 'text-blue-700', 'font-bold');
+            document.getElementById('btn-' + type).classList.remove('text-slate-500');
+        }
+
+        // Ecosystem Data Dictionary
+        const ecoData = {
+            'source': {
+                title: 'Sistemas Transacionais (OLTP)',
+                icon: 'laptop',
+                color: 'text-blue-600',
+                body: `<p><strong>SISPAA (MDS):</strong> Sistema core em Java. Onde o dado nasce (Adesão).<br><strong>PAA Net (Conab):</strong> Sistema parceiro. Desafio: Interoperabilidade.</p>
+                       <div class="mt-2 text-xs bg-slate-50 p-2 rounded">Gera registros administrativos legais a cada entrega de alimento.</div>`
+            },
+            'warehouse': {
+                title: 'Data Warehouse (OLAP)',
+                icon: 'server',
+                color: 'text-orange-600',
+                body: `<p><strong>Infraestrutura Analítica:</strong> Processamento Paralelo Massivo (MPP).<br>Permite cruzar bilhões de linhas do PAA com o <strong>CadÚnico</strong>.</p>
+                       <div class="mt-2 text-xs bg-slate-50 p-2 rounded">Objetivo: Auditoria de focalização e avaliação de impacto.</div>`
+            },
+            'vis': {
+                title: 'Visualização & Transparência',
+                icon: 'pie-chart',
+                color: 'text-purple-600',
+                body: `<p><strong>VisData:</strong> Painéis públicos.<br><strong>Dados Abertos:</strong> Transparência ativa para controle social.</p>
+                       <div class="mt-2 text-xs bg-slate-50 p-2 rounded">LGPD: Dados anonimizados antes da publicação.</div>`
+            }
+        };
+
+        function showEcoDetail(key) {
+            const data = ecoData[key];
+            const box = document.getElementById('eco-detail-box');
+            
+            document.querySelectorAll('.eco-node').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            box.innerHTML = `
+                <div class="fade-in text-center md:text-left flex flex-col md:flex-row items-center gap-4 w-full">
+                    <div class="p-3 bg-slate-50 rounded-full ${data.color}">
+                        <i data-lucide="${data.icon}" class="w-8 h-8"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-lg text-slate-800">${data.title}</h4>
+                        <div class="text-sm text-slate-600 mt-1">${data.body}</div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function openImageModal(url, title) {
+            const modal = document.getElementById('img-modal');
+            document.getElementById('modal-img-src').src = url;
+            document.getElementById('modal-img-title').innerText = title;
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('modal-closed');
-                modal.classList.add('modal-open');
-            }, 10);
+        }
+        function closeImageModal() {
+            document.getElementById('img-modal').classList.add('hidden');
         }
 
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('modal-open');
-            modal.classList.add('modal-closed');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.getElementById('modal-img').src = '';
-            }, 300);
-        }
+        // Init
+        switchTab('home');
+        toggleRadar('strategic');
     </script>
 </body>
 </html>
