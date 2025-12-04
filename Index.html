@@ -135,8 +135,11 @@
                         <button onclick="switchTab('ecossistema')" id="nav-ecossistema" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
                             <i data-lucide="network" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Ecossistema de Dados</span>
                         </button>
-                        <button onclick="switchTab('estrategia')" id="nav-estrategia" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="pie-chart" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Estratégia & KPIs</span>
+                        <button onclick="switchTab('regras')" id="nav-regras" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="gavel" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Regras de Negócio</span>
+                        </button>
+                        <button onclick="switchTab('segredos')" id="nav-segredos" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="lock" class="w-5 h-5 opacity-70 flex-shrink-0"></i> <span class="nav-text">Segredos da Eng.</span>
                         </button>
                     </nav>
                 </div>
@@ -368,6 +371,62 @@
                 </div>
             </div>
 
+            <!-- TAB: REGRAS DE NEGÓCIO -->
+            <div id="view-regras" class="view-section hidden fade-in max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Regras de Negócio & Legislação</h2>
+                    <p class="text-slate-500">Como a lei se traduz em código (Baseado no Relatório Técnico).</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Rule 1 -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 flex flex-col md:flex-row gap-6 shadow-sm">
+                        <div class="md:w-1/3">
+                            <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold inline-block mb-2">Lei 11.326</div>
+                            <h3 class="font-bold text-lg text-slate-800">Elegibilidade</h3>
+                            <p class="text-sm text-slate-500">Definição de Agricultor Familiar.</p>
+                        </div>
+                        <div class="md:w-2/3 border-l-4 border-blue-100 pl-4">
+                            <h4 class="font-bold text-sm text-slate-700 mb-2 flex items-center gap-2"><i data-lucide="code" class="w-4 h-4 text-blue-500"></i> Validação no Sistema</h4>
+                            <p class="text-sm text-slate-600">O sistema consulta uma API do MDA para validar se o CPF possui <strong>DAP/CAF Ativa</strong>. Se a resposta for negativa, o cadastro é bloqueado (Restrição de Integridade).</p>
+                        </div>
+                    </div>
+
+                    <!-- Rule 2 -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 flex flex-col md:flex-row gap-6 shadow-sm">
+                        <div class="md:w-1/3">
+                            <div class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-xs font-bold inline-block mb-2">Resolução GGPAA</div>
+                            <h3 class="font-bold text-lg text-slate-800">Cotas Sociais</h3>
+                            <p class="text-sm text-slate-500">Priorização de Mulheres.</p>
+                        </div>
+                        <div class="md:w-2/3 border-l-4 border-pink-100 pl-4">
+                            <h4 class="font-bold text-sm text-slate-700 mb-2 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-pink-500"></i> Algoritmo de Cotas</h4>
+                            <p class="text-sm text-slate-600">Campos obrigatórios de Sexo e Etnia. O sistema agrega dados automaticamente para monitorar a meta de <strong>50% de participação feminina</strong> (IN005).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: SEGREDOS DA ENGENHARIA -->
+            <div id="view-segredos" class="view-section hidden fade-in max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900">Segredos da Engenharia</h2>
+                    <p class="text-slate-500">Insights do documento "Por Trás da Cesta Básica".</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <i data-lucide="languages" class="w-8 h-8 text-amber-500 mb-4"></i>
+                        <h3 class="font-bold text-lg text-slate-800">O Desafio Semântico</h3>
+                        <p class="text-sm text-slate-600 mt-2">"Macaxeira" no Nordeste ou "Aipim" no Sul? A falta de padronização impede a visão nacional. Solução: Taxonomias unificadas via API.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <i data-lucide="lock" class="w-8 h-8 text-blue-500 mb-4"></i>
+                        <h3 class="font-bold text-lg text-slate-800">Código é Lei</h3>
+                        <p class="text-sm text-slate-600 mt-2">O Controle Social não é apenas burocracia. É uma trava de banco de dados. Sem ata do COMSEA, não há execução financeira.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- TAB: LEGISLAÇÃO (LISTA DE ARQUIVOS) -->
             <div id="view-legislacao" class="view-section hidden fade-in max-w-5xl mx-auto">
                 <div class="mb-8">
@@ -438,31 +497,6 @@
                             </div>
                             <i data-lucide="download" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
                         </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: ESTRATÉGIA -->
-            <div id="view-estrategia" class="view-section hidden fade-in max-w-6xl mx-auto">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-900">Estratégia & KPIs</h2>
-                    <p class="text-slate-500">Gestão baseada em evidências (Fonte: SAGICAD).</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
-                        <span class="text-xs font-mono text-slate-400 uppercase">IN023</span>
-                        <h3 class="text-3xl font-bold text-blue-600 my-2">Focalização</h3>
-                        <p class="text-xs text-slate-500">Agricultores no CadÚnico</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
-                        <span class="text-xs font-mono text-slate-400 uppercase">IN005</span>
-                        <h3 class="text-3xl font-bold text-pink-600 my-2">50%</h3>
-                        <p class="text-xs text-slate-500">Meta Mulheres (ODS 5)</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center shadow-sm">
-                        <span class="text-xs font-mono text-slate-400 uppercase">IN111</span>
-                        <h3 class="text-3xl font-bold text-green-600 my-2">Eficiência</h3>
-                        <p class="text-xs text-slate-500">Taxa de Execução Orçamentária</p>
                     </div>
                 </div>
             </div>
